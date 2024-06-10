@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 
 const Account = () => {
@@ -14,6 +15,9 @@ const Account = () => {
             : currentUser.email}
           , you are now logged in.
         </div>
+        <button className="bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black">
+          <Link to="/chat">Chat!</Link>
+        </button>
       </main>
     </>
   );

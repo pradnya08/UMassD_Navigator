@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/authContext";
 import { Route, Routes } from "react-router-dom";
 import Protected from "./components/Protected";
 import Home from "./pages/Home";
+import Chat from "./components/Chat";
 
 function App() {
   // const routesArray = [
@@ -46,6 +47,14 @@ function App() {
           element={
             <Protected>
               <Account />
+            </Protected>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <Protected>
+              <Chat />
             </Protected>
           }
         />
