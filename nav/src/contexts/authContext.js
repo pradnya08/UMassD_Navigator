@@ -48,6 +48,7 @@ export function AuthProvider({ children }) {
             name: user.displayName,
             email: user.email,
             uid: user.uid,
+            latest_conversation_id: 0,
           });
         }
       }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { auth, db } from "../firebase/firebase";
+import { db } from "../firebase/firebase";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "../contexts/authContext";
 
 const style = {
   form: `h-14 w-full max-w-[728px]  flex text-xl absolute bottom-0`,
@@ -8,8 +9,9 @@ const style = {
   button: `w-[20%] bg-green-500`,
 };
 
-const SendMessage = ({ scroll }) => {
+const SendMessage = ({ scroll, convId }) => {
   const [input, setInput] = useState("");
+  const { currentUser } = useAuth();
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -17,6 +19,16 @@ const SendMessage = ({ scroll }) => {
       alert("Please enter a valid message");
       return;
     }
+
+    const msgRef = collection(db, "messages");
+    await addDoc(msgRef, {
+      text: input,
+      name: currentUser.displayName,
+      convId,
+      uid: currentUser.uid,
+      isBot: false,
+      timestamp: serverTimestamp(),
+    });
 
     const msg = { input };
 
@@ -28,25 +40,22 @@ const SendMessage = ({ scroll }) => {
       },
       body: JSON.stringify(msg),
     });
-    const body = await response.json();
+    if (response.ok) {
+      const body = await response.json();
 
-    const bot_response = body["reply"];
+      const bot_response = body["reply"];
 
-    const { uid, displayName } = auth.currentUser;
-    await addDoc(collection(db, "messages"), {
-      text: input,
-      name: displayName,
-      uid,
-      timestamp: serverTimestamp(),
-    });
-
-    const { uid2, displayName2 } = auth.currentUser;
-    await addDoc(collection(db, "messages"), {
-      text: bot_response,
-      name: "UmassD Navigator",
-      uid: "Bot",
-      timestamp: serverTimestamp(),
-    });
+      await addDoc(msgRef, {
+        text: bot_response,
+        name: "UmassD Navigator",
+        convId,
+        uid: currentUser.uid,
+        isBot: true,
+        timestamp: serverTimestamp(),
+      });
+    } else {
+      alert("Server is down");
+    }
     setInput("");
     scroll.current.scrollIntoView({ behavior: "smooth" });
   };
