@@ -15,12 +15,11 @@ import {
 import { useAuth } from "../contexts/authContext";
 
 const style = {
-  main: `flex flex-col p-[10px]`,
+  main: `pb-32 pt-5 space-y-5 w-[75%] mx-auto relative`,
 };
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
-  const scroll = useRef();
   const [enableChat, setEnableChat] = useState(false);
   const { currentUser } = useAuth();
   const [convId, setConvId] = useState(null);
@@ -55,35 +54,41 @@ const Chat = () => {
     setEnableChat(!enableChat);
   };
 
+  const AlwaysScrollToBottom = () => {
+    const elementRef = useRef();
+    useEffect(() => elementRef.current.scrollIntoView(), [messages]);
+    return <div ref={elementRef} />;
+  };
+
   return (
-    <>
-      <main className={style.main}>
+    <div className=" bg-neutral-800">
+      <div className={style.main}>
         {messages &&
           messages.map((message) => (
             <Message key={message.id} message={message} />
           ))}
-      </main>
+      </div>
       <div
         className={
           enableChat
             ? "hidden"
             : "" +
-              "w-full h-screen mt-[-96px] mx-auto flex-col flex self-center place-content-center place-items-center"
+              "flex w-full self-center place-content-center place-items-center"
         }
       >
         <button
-          className="bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black"
+          className="bg-[#00df9a] w-[200px] rounded-md font-medium my-10 mx-auto py-3 text-black"
           onClick={start_conversation}
         >
           Start Conversation
         </button>
       </div>
       {/* Send Message Compoenent */}
+      <AlwaysScrollToBottom />
       <div className={enableChat ? "" : "hidden"}>
-        <SendMessage scroll={scroll} convId={convId} />
-        <span ref={scroll}></span>
+        <SendMessage convId={convId} />
       </div>
-    </>
+    </div>
   );
 };
 
