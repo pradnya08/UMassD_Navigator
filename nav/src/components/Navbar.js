@@ -2,41 +2,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import { doSignOut } from "../firebase/auth";
-
-// const Header = () => {
-//   const navigate = useNavigate();
-//   const { userLoggedIn } = useAuth();
-//   return (
-//     <nav className="flex justify-between bg-gray-200 w-full p-4">
-//       {userLoggedIn ? (
-//         <>
-//           <button
-//             onClick={() => {
-//               doSignOut().then(() => {
-//                 navigate("/login");
-//               });
-//             }}
-//             className="text-sm text-blue-600 underline"
-//           >
-//             Logout
-//           </button>
-//         </>
-//       ) : (
-//         <>
-//           <Link className="text-sm text-blue-600 underline" to={"/login"}>
-//             Login
-//           </Link>
-//           <Link className="text-sm text-blue-600 underline" to={"/register"}>
-//             Register New Account
-//           </Link>
-//         </>
-//       )}
-//     </nav>
-//   );
-// };
-
-// export default Header;
-
 import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 
@@ -86,7 +51,7 @@ const Navbar = () => {
           )}
         </li>
       </ul>
-      <div onClick={handleNav} className="block md:hidden">
+      <div onClick={handleNav} className="block md:hidden hover:cursor-pointer">
         {nav ? <AiOutlineClose size={20} /> : <AiOutlineMenu size={20} />}
       </div>
       <ul
@@ -99,11 +64,46 @@ const Navbar = () => {
         <h1 className="w-full text-3xl font-bold text-[#00df9a] m-4">
           UmassD Navigator
         </h1>
-        <li className="p-4 border-b border-gray-600">Home</li>
-        <li className="p-4 border-b border-gray-600">Company</li>
-        <li className="p-4 border-b border-gray-600">Resources</li>
-        <li className="p-4 border-b border-gray-600">About</li>
-        <li className="p-4">Contact</li>
+        <li
+          onClick={() => {
+            setNav(!nav);
+          }}
+          className="p-4"
+        >
+          <Link className="text-white" to={"/"}>
+            Home
+          </Link>
+        </li>
+        <li className="p-4">Company</li>
+        <li className="p-4">Resources</li>
+        <li className="p-4">About</li>
+        <li
+          onClick={() => {
+            setNav(!nav);
+          }}
+          className="p-4"
+        >
+          {userLoggedIn ? (
+            <>
+              <button
+                onClick={() => {
+                  doSignOut().then(() => {
+                    navigate("/login");
+                  });
+                }}
+                className="text-white"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link className="text-white" to={"/login"}>
+                Login
+              </Link>
+            </>
+          )}
+        </li>
       </ul>
     </div>
   );

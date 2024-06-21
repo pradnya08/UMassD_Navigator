@@ -32,13 +32,18 @@ def setup_bot():
   vector = FAISS.from_documents(documents, embeddings)
 
   
-  prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context:
-
-  <context>
-  {context}
-  </context>
-
-  Question: {input}""")
+  prompt = ChatPromptTemplate.from_template("""You are an AI assistant for the University of Massachusetts Dartmouth also known as UmassD.
+You are given the following extracted parts of a long document and a question. Do reply politely to any greeting messages. Provide a conversational answer with a hyperlink whenever neccessary to the right source.
+You should only use hyperlinks that are explicitly listed as a source in the context. Do NOT make up a hyperlink that is not listed.
+If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
+If the question is not about University of Massachusetts Dartmouth, politely inform them that you are tuned to only answer questions about University of Massachusetts Dartmouth.
+If you are answering bullet points or a list of items can you add them in a list one after the other.
+Question: {input}
+=========
+{context}
+=========
+Answer in Markdown:
+""")
 
   document_chain = create_stuff_documents_chain(llm, prompt)
   retriever = vector.as_retriever()

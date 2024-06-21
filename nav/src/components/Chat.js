@@ -13,6 +13,7 @@ import {
   where,
 } from "firebase/firestore";
 import { useAuth } from "../contexts/authContext";
+import SubmitFeedback from "../components/SubmitFeedback";
 
 const style = {
   main: `pb-32 pt-5 space-y-5 w-[75%] mx-auto relative`,
@@ -21,6 +22,7 @@ const style = {
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [enableChat, setEnableChat] = useState(false);
+  const [enableFeedback, setEnableFeedback] = useState(false);
   const { currentUser } = useAuth();
   const [convId, setConvId] = useState(null);
 
@@ -39,7 +41,7 @@ const Chat = () => {
       setMessages(messages);
     });
     return () => unsubscribe();
-  }, [convId]);
+  }, [convId, currentUser.uid]);
 
   const start_conversation = () => {
     const userRef = doc(db, "users", currentUser.uid);
@@ -54,39 +56,58 @@ const Chat = () => {
     setEnableChat(!enableChat);
   };
 
+  const give_feedback = () => {
+    setEnableChat(!enableChat);
+    setEnableFeedback(!enableFeedback);
+  };
+
   const AlwaysScrollToBottom = () => {
     const elementRef = useRef();
+    // eslint-disable-next-line
     useEffect(() => elementRef.current.scrollIntoView(), [messages]);
     return <div ref={elementRef} />;
   };
 
   return (
-    <div className=" bg-neutral-800">
-      <div className={style.main}>
-        {messages &&
-          messages.map((message) => (
-            <Message key={message.id} message={message} />
-          ))}
-      </div>
-      <div
-        className={
-          enableChat
-            ? "hidden"
-            : "" +
-              "flex w-full self-center place-content-center place-items-center"
-        }
-      >
-        <button
-          className="bg-[#00df9a] w-[200px] rounded-md font-medium my-10 mx-auto py-3 text-black"
-          onClick={start_conversation}
+    <div>
+      <div className={enableFeedback ? "hidden" : "" + "bg-neutral-800"}>
+        <div className={style.main}>
+          {messages &&
+            messages.map((message) => (
+              <Message key={message.id} message={message} />
+            ))}
+        </div>
+        <div
+          className={
+            enableChat
+              ? "hidden"
+              : "" +
+                "flex w-full self-center place-content-center place-items-center"
+          }
         >
-          Start Conversation
-        </button>
+          <button
+            className="bg-[#00df9a] w-[200px] rounded-md font-medium my-10 mx-auto py-3 text-black"
+            onClick={start_conversation}
+          >
+            Start Conversation
+          </button>
+        </div>
+        {/* Send Message Compoenent */}
+        <div className={!enableChat ? "hidden" : ""}>
+          <button
+            className="bg-[#00df9a] w-[150px] rounded-md font-medium my-6 mx-6 py-3 text-black"
+            onClick={give_feedback}
+          >
+            Give Feedback
+          </button>
+        </div>
+        <AlwaysScrollToBottom />
+        <div className={enableChat ? "" : "hidden"}>
+          <SendMessage convId={convId} />
+        </div>
       </div>
-      {/* Send Message Compoenent */}
-      <AlwaysScrollToBottom />
-      <div className={enableChat ? "" : "hidden"}>
-        <SendMessage convId={convId} />
+      <div className={!enableFeedback ? "hidden" : "" + "bg-neutral-800"}>
+        <SubmitFeedback convId={convId} feedbackEnabler={setEnableFeedback} />
       </div>
     </div>
   );

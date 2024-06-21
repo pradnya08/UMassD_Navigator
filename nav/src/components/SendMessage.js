@@ -8,7 +8,7 @@ const style = {
   button: `absolute bg-teal-500 p-2 rounded-lg right-0 mr-5`,
 };
 
-const SendMessage = ({ scroll, convId }) => {
+const SendMessage = ({ convId }) => {
   const [uiInput, setUiInput] = useState("");
   const { currentUser } = useAuth();
 
