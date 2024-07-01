@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Markdown from "react-markdown";
 
 const Message = ({ message }) => {

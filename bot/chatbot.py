@@ -1,56 +1,106 @@
 #This will be the chatbot
+import os
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_community.document_loaders import WebBaseLoader
 from langchain_community.document_loaders.recursive_url_loader import RecursiveUrlLoader
 from bs4 import BeautifulSoup as Soup
 from langchain_openai import OpenAIEmbeddings
-import os
 from langchain_community.vectorstores import FAISS
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
-
-
+from langchain_core.prompts import MessagesPlaceholder
+from langchain.chains import create_history_aware_retriever
+from langchain_google_firestore import FirestoreChatMessageHistory
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_core.chat_history import BaseChatMessageHistory
+from firebase_admin import credentials, firestore, initialize_app
 
 def setup_bot():
-  llm = ChatOpenAI(openai_api_key="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")
-  prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are world class technical documentation writer."),
-    ("user", "{input}")
-  ])
-  output_parser = StrOutputParser()
-  chain = prompt | llm | output_parser
-  loader = RecursiveUrlLoader(url="https://www.umassd.edu/engineering/cis/", max_depth=5, extractor=lambda x: Soup(x, "html.parser").text)
+  llm = ChatOpenAI(model="gpt-3.5-turbo-1106", openai_api_key="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")
+  loader = RecursiveUrlLoader(url="https://www.umassd.edu/engineering/cis/", max_depth=10, extractor=lambda x: Soup(x, "html.parser").text)
 
   docs = loader.load()
   os.environ ["OPENAI_API_KEY"] = "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"
   embeddings = OpenAIEmbeddings()
-  text_splitter = RecursiveCharacterTextSplitter()
+  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
   documents = text_splitter.split_documents(docs)
   vector = FAISS.from_documents(documents, embeddings)
+  retriever = vector.as_retriever()
 
   
-  prompt = ChatPromptTemplate.from_template("""You are an AI assistant for the University of Massachusetts Dartmouth also known as UmassD.
-You are given the following extracted parts of a long document and a question. Do reply politely to any greeting messages. Provide a conversational answer with a hyperlink whenever neccessary to the right source.
-You should only use hyperlinks that are explicitly listed as a source in the context. Do NOT make up a hyperlink that is not listed.
-If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
-If the question is not about University of Massachusetts Dartmouth, politely inform them that you are tuned to only answer questions about University of Massachusetts Dartmouth.
-If you are answering bullet points or a list of items can you add them in a list one after the other.
-Question: {input}
-=========
-{context}
-=========
-Answer in Markdown:
-""")
+  contextualize_q_system_prompt = (
+    "Given a chat history and the latest user question "
+    "which might reference context in the chat history, "
+    "formulate a standalone question which can be understood "
+    "without the chat history. Do NOT answer the question, "
+    "just reformulate it if needed and otherwise return it as is."
+  )
 
-  document_chain = create_stuff_documents_chain(llm, prompt)
-  retriever = vector.as_retriever()
-  global retrieval_chain
-  retrieval_chain= create_retrieval_chain(retriever, document_chain)
+  contextualize_q_prompt = ChatPromptTemplate.from_messages(
+    [
+        ("system", contextualize_q_system_prompt),
+        MessagesPlaceholder("chat_history"),
+        ("human", "{input}"),
+    ]
+  )
 
-def ask_bot(input):
-  # Example question: "What are all the graduate level courses? List them"
-  response = retrieval_chain.invoke({"input": input})
+  history_aware_retriever = create_history_aware_retriever(
+    llm, retriever, contextualize_q_prompt
+  )
+  system_prompt = (
+    "You are an assistant for question-answering tasks of University of Massachusetts Dartmouth also called UmassD or UMASSD or uMASSD "
+    "Use the following pieces of retrieved context to answer "
+    "the question. If you don't know the answer, say that you "
+    "don't know."
+    "If asked for contact information provide phone numbers and email addresses."
+    "If you are answering bullet points or a list of items can you add them in a list one after the other and make subsections if necessary"
+    "Provide a conversational answer with a hyperlink whenever neccessary to the right source."
+    "You should only use hyperlinks that are explicitly listed as a source in the context. Do NOT make up a hyperlink that is not listed."
+    "If the provided context does not have a hyperlink to a resource then say you cannot list the source of that resource."
+    "\n\n"
+    "{context}"
+    "Answer in Markdown:"
+  )
+  qa_prompt = ChatPromptTemplate.from_messages(
+      [
+          ("system", system_prompt),
+          MessagesPlaceholder("chat_history"),
+          ("human", "{input}"),
+      ]
+  )
+  question_answer_chain = create_stuff_documents_chain(llm, qa_prompt)
+
+  global rag_chain
+  rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
+
+  # Setup Firebase
+  cred_path = os.environ["FIREBASE_ADMIN_CREDS"]
+  cred = credentials.Certificate(cred_path)
+  initialize_app(cred)
+  global db
+  db = firestore.client()
+
+
+
+def ask_bot(input, session_id):
+
+  def get_session_history(session_id: str) -> BaseChatMessageHistory:
+    chat_history = FirestoreChatMessageHistory(
+      client=db,
+      session_id=session_id, collection="history"
+    )
+    return chat_history
+
+  conversational_rag_chain = RunnableWithMessageHistory(
+    rag_chain,
+    get_session_history,
+    input_messages_key="input",
+    history_messages_key="chat_history",
+    output_messages_key="answer",
+  )
+
+  response = conversational_rag_chain.invoke({"input": input},config={
+        "configurable": {"session_id": session_id}
+    })
   return response["answer"]

@@ -19,5 +19,6 @@ def ask():
     """
     data = request.get_json()
     msg = data["input"]
-    reply = ask_bot(msg)
+    session_id = data["session_id"]
+    reply = ask_bot(msg, session_id)
     return {"reply": reply}

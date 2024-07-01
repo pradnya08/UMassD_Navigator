@@ -30,8 +30,9 @@ const SendMessage = ({ convId }) => {
       isBot: false,
       timestamp: serverTimestamp(),
     });
+    const session_id = `${currentUser.uid}_${convId}`;
 
-    const msg = { input };
+    const msg = { input, session_id };
 
     const response = await fetch("/ask", {
       method: "POST",
