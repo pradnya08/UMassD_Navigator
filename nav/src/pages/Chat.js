@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import Message from "./Message";
-import SendMessage from "./SendMessage";
+import Message from "../components/Message";
+import SendMessage from "../components/SendMessage";
 import { db } from "../firebase/firebase";
 import {
   doc,

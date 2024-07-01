@@ -8,7 +8,7 @@ import { AuthProvider } from "./contexts/authContext";
 import { Route, Routes } from "react-router-dom";
 import Protected from "./components/Protected";
 import Home from "./pages/Home";
-import Chat from "./components/Chat";
+import Chat from "./pages/Chat";
 
 function App() {
   // const routesArray = [
