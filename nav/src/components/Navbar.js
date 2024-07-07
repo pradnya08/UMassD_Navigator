@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/authContext";
 import { doSignOut } from "../firebase/auth";
 import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
+import umassd_logo from "../assets/umassd_logo.png";
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);
@@ -16,8 +17,9 @@ const Navbar = () => {
 
   return (
     <div className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white">
-      <h1 className="text-3xl w-fit font-bold text-[#00df9a]">
-        <Link to="/">UmassD Navigator</Link>
+      <img src={umassd_logo} />
+      <h1 className="text-3xl w-fit font-bold text-[#FEC24D]">
+        <Link to="/">Corsair Assistant</Link>
       </h1>
       <ul className="hidden md:flex">
         <li className="p-4">
