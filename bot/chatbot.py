@@ -15,15 +15,19 @@ from langchain_google_firestore import FirestoreChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from firebase_admin import credentials, firestore, initialize_app
+from langchain_community.document_loaders.merge import MergedDataLoader
+from langchain_community.document_loaders import WebBaseLoader
 
 def setup_bot():
-  llm = ChatOpenAI(model="gpt-3.5-turbo-1106", openai_api_key="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")
-  loader = RecursiveUrlLoader(url="https://www.umassd.edu/engineering/cis/", max_depth=10, extractor=lambda x: Soup(x, "html.parser").text)
+  llm = ChatOpenAI(model="gpt-3.5-turbo-1106", openai_api_key=os.environ["OPENAI_API_KEY"])
+  loader_cis = RecursiveUrlLoader(url="https://www.umassd.edu/engineering/cis/", max_depth=15, extractor=lambda x: Soup(x, "html.parser").text)
+  loader_calendar = RecursiveUrlLoader(url="https://www.umassd.edu/academiccalendar/", max_depth=15, extractor=lambda x: Soup(x, "html.parser").text)
 
-  docs = loader.load()
-  os.environ ["OPENAI_API_KEY"] = "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"
+  loader_all = MergedDataLoader(loaders=[loader_cis, loader_calendar])
+
+  docs = loader_all.load()
   embeddings = OpenAIEmbeddings()
-  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+  text_splitter = RecursiveCharacterTextSplitter()
   documents = text_splitter.split_documents(docs)
   vector = FAISS.from_documents(documents, embeddings)
   retriever = vector.as_retriever()
@@ -49,18 +53,26 @@ def setup_bot():
     llm, retriever, contextualize_q_prompt
   )
   system_prompt = (
-    "You are an assistant for question-answering tasks of University of Massachusetts Dartmouth also called UmassD or UMASSD or uMASSD "
-    "Use the following pieces of retrieved context to answer "
-    "the question. If you don't know the answer, say that you "
-    "don't know."
-    "If asked for contact information provide phone numbers and email addresses."
-    "If you are answering bullet points or a list of items can you add them in a list one after the other and make subsections if necessary"
-    "Provide a conversational answer with a hyperlink whenever neccessary to the right source."
-    "You should only use hyperlinks that are explicitly listed as a source in the context. Do NOT make up a hyperlink that is not listed."
-    "If the provided context does not have a hyperlink to a resource then say you cannot list the source of that resource."
-    "\n\n"
-    "{context}"
-    "Answer in Markdown:"
+    """
+    You are an assistant for question-answering tasks of University of Massachusetts Dartmouth also called UmassD or UMASSD or uMASSD.
+    Use the following pieces of retrieved context to answer the question. If you don't know the answer, say that you don't know.
+
+    If asked for contact information provide phone numbers and email addresses.
+    If you are answering bullet points or a list of items, add them in a list one after the other and make subsections if necessary.
+    
+    Do not consider emails or mailto: as hyperlinks.
+
+    Provide a conversational answer with a hyperlink whenever neccessary to the right source. You should only use hyperlinks that are explicitly listed as a source in the context.
+    Do NOT make up a hyperlink that is not listed. The links should only be found as hyperlinks in the context.
+    
+    If the provided context does not have a hyperlink to a resource then say you cannot list the source of that resource.
+
+    If the questions ask about dates provide the most recent one. You are in the year 2024, so provide answers to the most recent information in the context.
+
+    \n\n
+    {context}
+    Answer in Markdown:
+                   """
   )
   qa_prompt = ChatPromptTemplate.from_messages(
       [
