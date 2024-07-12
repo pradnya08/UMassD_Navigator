@@ -34,14 +34,17 @@ const SendMessage = ({ convId }) => {
 
     const msg = { input, session_id };
 
-    const response = await fetch("/ask", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(msg),
-    });
+    const response = await fetch(
+      "https://bot-server-cudlgu6y5q-wl.a.run.app/ask",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(msg),
+      }
+    );
     if (response.ok) {
       const body = await response.json();
 
