@@ -1,0 +1,7 @@
+Dockerfile
+*.pyc
+*.pyo
+*.pyd
+*.env
+__pycache__
+.pytest_cache
