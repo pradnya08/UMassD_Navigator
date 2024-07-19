@@ -19,7 +19,7 @@ const Navbar = () => {
     <div className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white">
       <img src={umassd_logo} />
       <h1 className="text-3xl w-fit font-bold text-[#FEC24D]">
-        <Link to="/">Corsair Assistant</Link>
+        <Link to="/">UmassD Navigator</Link>
       </h1>
       <ul className="hidden md:flex">
         <li className="p-4">
@@ -56,11 +56,11 @@ const Navbar = () => {
       <ul
         className={
           nav
-            ? "fixed left-0 top-0 w-[60%] h-full border-r border-r-gray-900 bg-[#000300] ease-in-out duration-500"
+            ? "fixed left-0 top-0 w-[60%] h-full border-r border-r-gray-900 bg-[#003564] ease-in-out duration-500"
             : "ease-in-out duration-500 fixed left-[-100%]"
         }
       >
-        <h1 className="w-full text-3xl font-bold text-[#00df9a] m-4">
+        <h1 className="w-full text-3xl font-bold text-[#FEC24D] m-4">
           UmassD Navigator
         </h1>
         <li

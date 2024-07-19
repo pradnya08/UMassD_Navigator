@@ -70,7 +70,7 @@ const Chat = () => {
 
   return (
     <div>
-      <div className={enableFeedback ? "hidden" : "" + "bg-neutral-800"}>
+      <div className={enableFeedback ? "hidden" : "" + "bg-[#003764]"}>
         <div className={style.main}>
           {messages &&
             messages.map((message) => (
