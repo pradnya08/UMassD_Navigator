@@ -25,9 +25,6 @@ const Navbar = () => {
             Home
           </Link>
         </li>
-        <li className="p-4">Company</li>
-        <li className="p-4">Resources</li>
-        <li className="p-4">About</li>
         <li className="p-4">
           {userLoggedIn ? (
             <>
@@ -74,9 +71,6 @@ const Navbar = () => {
             Home
           </Link>
         </li>
-        <li className="p-4">Company</li>
-        <li className="p-4">Resources</li>
-        <li className="p-4">About</li>
         <li
           onClick={() => {
             setNav(!nav);
