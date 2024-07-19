@@ -30,6 +30,17 @@ const Navbar = () => {
         <li className="p-4">
           {userLoggedIn ? (
             <>
+              <Link className="text-white" to={"/account"}>
+                Account
+              </Link>
+            </>
+          ) : (
+            <></>
+          )}
+        </li>
+        <li className="p-4">
+          {userLoggedIn ? (
+            <>
               <button
                 onClick={() => {
                   doSignOut().then(() => {
@@ -72,6 +83,22 @@ const Navbar = () => {
           <Link className="text-white" to={"/"}>
             Home
           </Link>
+        </li>
+        <li
+          onClick={() => {
+            setNav(!nav);
+          }}
+          className="p-4"
+        >
+          {userLoggedIn ? (
+            <>
+              <Link className="text-white" to={"/account"}>
+                Account
+              </Link>
+            </>
+          ) : (
+            <></>
+          )}
         </li>
         <li
           onClick={() => {
