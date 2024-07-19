@@ -9,31 +9,10 @@ import { Route, Routes } from "react-router-dom";
 import Protected from "./components/Protected";
 import Home from "./pages/Home";
 import Chat from "./pages/Chat";
+import Conversations from "./pages/Conversations";
+import ViewChat from "./pages/ViewChat";
 
 function App() {
-  // const routesArray = [
-  //   {
-  //     path: "*",
-  //     element: <Login />,
-  //   },
-  //   {
-  //     path: "/login",
-  //     element: <Login />,
-  //   },
-  //   {
-  //     path: "/register",
-  //     element: <Register />,
-  //   },
-  //   {
-  //     path: "/home",
-  //     element: (
-  //       <Protected>
-  //         <Home />
-  //       </Protected>
-  //     ),
-  //   },
-  // ];
-  // let routesElement = useRoutes(routesArray);
   return (
     <AuthProvider>
       <Navbar />
@@ -55,6 +34,22 @@ function App() {
           element={
             <Protected>
               <Chat />
+            </Protected>
+          }
+        />
+        <Route
+          path="/conversations"
+          element={
+            <Protected>
+              <Conversations />
+            </Protected>
+          }
+        />
+        <Route
+          path="/viewChat"
+          element={
+            <Protected>
+              <ViewChat />
             </Protected>
           }
         />

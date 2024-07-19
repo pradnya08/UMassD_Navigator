@@ -16,7 +16,10 @@ const Account = () => {
           , you are now logged in.
         </div>
         <button className="bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black">
-          <Link to="/chat">Chat!</Link>
+          <Link to="/chat">New Chat!</Link>
+        </button>
+        <button className="bg-[#00df9a] w-[200px] rounded-md font-medium my-6 mx-auto py-3 text-black">
+          <Link to="/conversations">Previous Chats!</Link>
         </button>
       </main>
     </>
