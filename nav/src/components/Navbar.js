@@ -1,20 +1,36 @@
-// import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import { doSignOut } from "../firebase/auth";
-import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import umassd_logo from "../assets/umassd_logo.png";
-
+import { db } from "../firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
 const Navbar = () => {
   const [nav, setNav] = useState(false);
   const navigate = useNavigate();
   const { userLoggedIn } = useAuth();
+  const { currentUser } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (userLoggedIn) {
+      const userRef = doc(db, "users", currentUser.uid);
+      getDoc(userRef)
+        .then((doc) => {
+          const data = doc.data();
+          return "is_admin" in data ? data["is_admin"] : false;
+        })
+        .then((is_admin) => {
+          setIsAdmin(is_admin);
+        });
+    }
+    setIsAdmin(false);
+  }, [userLoggedIn]);
 
   const handleNav = () => {
     setNav(!nav);
   };
-
   return (
     <div className="flex justify-between items-center h-24 max-w-[1240px] mx-auto px-4 text-white">
       <img src={umassd_logo} />
@@ -36,6 +52,13 @@ const Navbar = () => {
             </>
           ) : (
             <></>
+          )}
+        </li>
+        <li className="p-4">
+          {isAdmin && (
+            <Link className="text-white" to={"/dashboard"}>
+              Dashboard
+            </Link>
           )}
         </li>
         <li className="p-4">
@@ -98,6 +121,18 @@ const Navbar = () => {
             </>
           ) : (
             <></>
+          )}
+        </li>
+        <li
+          onClick={() => {
+            setNav(!nav);
+          }}
+          className="p-4"
+        >
+          {isAdmin && (
+            <Link className="text-white" to={"/dashboard"}>
+              Dashboard
+            </Link>
           )}
         </li>
         <li

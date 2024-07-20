@@ -11,6 +11,7 @@ import Home from "./pages/Home";
 import Chat from "./pages/Chat";
 import Conversations from "./pages/Conversations";
 import ViewChat from "./pages/ViewChat";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -50,6 +51,14 @@ function App() {
           element={
             <Protected>
               <ViewChat />
+            </Protected>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <Protected>
+              <Dashboard />
             </Protected>
           }
         />

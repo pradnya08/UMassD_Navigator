@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
           name: user.displayName,
           email: user.email,
           uid: user.uid,
+          is_admin: user.is_admin,
         });
       } catch (error) {
         if (error.code === "not-found") {
@@ -49,6 +50,7 @@ export function AuthProvider({ children }) {
             email: user.email,
             uid: user.uid,
             latest_conversation_id: 0,
+            is_admin: false,
           });
         }
       }
