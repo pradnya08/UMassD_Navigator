@@ -33,6 +33,20 @@ export const surveyJson = {
           displayMode: "buttons",
         },
         {
+          type: "dropdown",
+          name: "category",
+          title: "Which category might suit you?",
+          isRequired: true,
+          choices: [
+            "Student",
+            "Parent of a Student",
+            "Faculty",
+            "Prospective student",
+            "Parent of a prospective student",
+            "Other",
+          ],
+        },
+        {
           type: "comment",
           name: "comment",
           title: "Any other comments?",
