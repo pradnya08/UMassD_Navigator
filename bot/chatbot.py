@@ -18,14 +18,14 @@ from firebase_admin import credentials, firestore, initialize_app
 from langchain_community.document_loaders.merge import MergedDataLoader
 
 def setup_bot():
-  llm = ChatOpenAI(model="gpt-3.5-turbo-1106", openai_api_key=os.environ["OPENAI_API_KEY"])
+  llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-1106", openai_api_key=os.environ["OPENAI_API_KEY"])
   loader_cis = RecursiveUrlLoader(url="https://www.umassd.edu/engineering/cis/", max_depth=10, extractor=lambda x: Soup(x, "html.parser").text)
   loader_calendar = RecursiveUrlLoader(url="https://www.umassd.edu/academiccalendar/", max_depth=5, extractor=lambda x: Soup(x, "html.parser").text)
 
   loader_all = MergedDataLoader(loaders=[loader_cis, loader_calendar])
 
   docs = loader_all.load()
-  embeddings = OpenAIEmbeddings()
+  embeddings = OpenAIEmbeddings(model='text-embedding-3-small')
   text_splitter = RecursiveCharacterTextSplitter()
   documents = text_splitter.split_documents(docs)
   vector = FAISS.from_documents(documents, embeddings)

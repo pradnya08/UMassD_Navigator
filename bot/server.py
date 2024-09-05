@@ -10,8 +10,8 @@ def setup_server():
     print("Setting up bot")
     setup_bot()
     app = Flask(__name__)
-    app.config['CORS_HEADERS'] = 'Content-Type'
-    cors = CORS(app, resources={r"/ask": {"origins": "https://bot-server-cudlgu6y5q-wl.a.run.app"}})
+    # app.config['CORS_HEADERS'] = 'Content-Type'
+    # cors = CORS(app, resources={r"/ask": {"origins": "https://bot-server-cudlgu6y5q-wl.a.run.app"}})
     
     @app.route("/ping")
     def hello_world():
@@ -23,7 +23,7 @@ def setup_server():
 app = setup_server()
 
 @app.route("/ask", methods=["POST"])
-@cross_origin(origin="https://bot-server-cudlgu6y5q-wl.a.run.app", headers=['Content-Type', 'Authorization'])
+# @cross_origin(origin="https://bot-server-cudlgu6y5q-wl.a.run.app", headers=['Content-Type', 'Authorization'])
 def ask():
     """
       This will ask the quesiton to the bot by calling ask_bot API
