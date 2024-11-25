@@ -6,8 +6,6 @@ ENV APP_HOME /app
 
 ENV PORT 5000
 
-ENV OPENAI_API_KEY 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
-
 ENV FIREBASE_ADMIN_CREDS umassdnavigator-firebase-adminsdk.json
 
 WORKDIR $APP_HOME
